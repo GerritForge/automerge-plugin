@@ -3,17 +3,10 @@ package com.criteo.gerrit.plugins.automerge;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.gerrit.extensions.api.changes.ReviewInput;
-import com.google.gerrit.extensions.restapi.AuthException;
-import com.google.gerrit.extensions.restapi.BadRequestException;
-import com.google.gerrit.extensions.restapi.RestApiException;
-import com.google.gerrit.extensions.restapi.UnprocessableEntityException;
 import com.google.gerrit.reviewdb.server.ReviewDb;
 import com.google.gerrit.server.change.PostReview;
 import com.google.gerrit.server.change.RevisionResource;
-import com.google.gerrit.server.update.UpdateException;
-import com.google.gerrit.server.project.NoSuchChangeException;
 import com.google.gerrit.server.query.change.ChangeData;
-import com.google.gwtorm.server.OrmException;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -41,12 +34,12 @@ public class ReviewUpdater {
   @Inject
   private AtomicityHelper atomicityHelper;
 
-  public void commentOnReview(String project, int number, String commentTemplate) throws RestApiException, OrmException, IOException, NoSuchChangeException, UpdateException {
+  public void commentOnReview(String project, int number, String commentTemplate) throws Exception {
     ReviewInput comment = createComment(commentTemplate);
     applyComment(project, number, comment);
   }
 
-    public void setMinusOne(String project, int number, String commentTemplate) throws RestApiException, OrmException, IOException, NoSuchChangeException, UpdateException {
+    public void setMinusOne(String project, int number, String commentTemplate) throws Exception {
     ReviewInput message = createComment(commentTemplate).label("Code-Review", -1);
     applyComment(project, number, message);
   }
@@ -66,7 +59,7 @@ public class ReviewUpdater {
      }
    }
 
-  private void applyComment(String project, int number, ReviewInput comment) throws RestApiException, OrmException, IOException, NoSuchChangeException, UpdateException {
+  private void applyComment(String project, int number, ReviewInput comment) throws Exception {
     RevisionResource r = atomicityHelper.getRevisionResource(project, number);
     reviewer.get().apply(r, comment);
   }

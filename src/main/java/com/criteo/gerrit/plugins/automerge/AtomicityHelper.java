@@ -18,6 +18,7 @@ import com.google.gerrit.server.change.RevisionResource;
 import com.google.gerrit.server.change.Submit;
 import com.google.gerrit.server.data.ChangeAttribute;
 import com.google.gerrit.server.git.MergeUtil;
+import com.google.gerrit.server.permissions.PermissionBackendException;
 import com.google.gerrit.server.project.ChangeControl;
 import com.google.gerrit.server.project.NoSuchChangeException;
 import com.google.gerrit.server.project.SubmitRuleEvaluator;
@@ -132,9 +133,8 @@ public class AtomicityHelper {
    * @throws OrmException
    * @throws IOException
    */
-  public void mergeReview(ChangeInfo info) throws RestApiException, NoSuchChangeException, OrmException, IOException {
+  public void mergeReview(ChangeInfo info) throws RestApiException, NoSuchChangeException, OrmException, IOException, PermissionBackendException {
     final SubmitInput input = new SubmitInput();
-    input.waitForMerge = true;
     final RevisionResource r = getRevisionResource(info.project, info._number);
     submitter.apply(r, input);
   }

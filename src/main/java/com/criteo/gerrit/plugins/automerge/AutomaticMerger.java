@@ -34,17 +34,13 @@ import com.google.gerrit.server.events.Event;
 import com.google.gerrit.server.events.PatchSetCreatedEvent;
 import com.google.gerrit.server.events.TopicChangedEvent;
 import com.google.gerrit.server.git.MergeUtil;
-import com.google.gerrit.server.update.UpdateException;
-import com.google.gerrit.server.project.NoSuchChangeException;
 import com.google.gerrit.server.query.change.ChangeData;
-import com.google.gwtorm.server.OrmException;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -127,7 +123,7 @@ public class AutomaticMerger implements EventListener, LifecycleListener {
         log.info(String.format("Change %d is submittable. Will try to merge all related changes.", change.number));
         attemptToMerge(change);
       }
-    } catch (RestApiException | OrmException | UpdateException | IOException e) {
+    } catch (Exception e) {
       log.error("An exception occured while trying to atomic merge a change.", e);
       throw new RuntimeException(e);
     }
@@ -157,7 +153,7 @@ public class AutomaticMerger implements EventListener, LifecycleListener {
     return false;
   }
 
-  private void attemptToMerge(ChangeAttribute change) throws RestApiException, OrmException, NoSuchChangeException, IOException, UpdateException {
+  private void attemptToMerge(ChangeAttribute change) throws Exception {
     final List<ChangeInfo> related = Lists.newArrayList();
     if (atomicityHelper.isAtomicReview(change)) {
       related.addAll(api.changes().query("status: open AND topic: " + change.topic)
@@ -200,7 +196,7 @@ public class AutomaticMerger implements EventListener, LifecycleListener {
         log.info(String.format("Detected atomic review on change %d.", change.number));
         reviewUpdater.commentOnReview(change.project, change.number, AutomergeConfig.ATOMIC_REVIEW_DETECTED_FILE);
       }
-    } catch (RestApiException | IOException | OrmException | UpdateException e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
